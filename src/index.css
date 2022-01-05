@@ -619,15 +619,26 @@ button {
   align-items: center;
 }
 
-.logOut {
+.logOut, .submitEdit {
   cursor: pointer;
   font-family: 'Montserrat', sans-serif;
   font-size: 1rem;
   font-weight: 600;
   color: #ffffff;
-  background-color: #00cc66;
   padding: 0.25rem 0.75rem;
   border-radius: 1rem;
+}
+
+.logOut {
+  background-color: #00cc66;
+}
+
+.submitEdit {
+  background-color: #8cc770;
+}
+
+.profileCharTitle {
+  margin-right: 1rem;
 }
 
 .profileDetailsHeader {
@@ -659,6 +670,11 @@ button {
   flex-direction: column;
 }
 
+.profileChar {
+  display: flex;
+  justify-content: space-between;
+}
+
 .profileName,
 .profileEmail,
 .profileAddress,
@@ -669,6 +685,7 @@ button {
   margin: 0.3rem 0;
   font-weight: 600;
   width: 100%;
+  /* margin-left: 10px; */
 }
 .profileNameActive {
   background-color: rgba(44, 44, 44, 0.1);
