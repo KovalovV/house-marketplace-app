@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+
+import ListingItem from '../components/ListingItem';
 
 import {
     collection,
@@ -63,20 +65,27 @@ const Category = () => {
     }
 
     return (
-        <div>
+        <div className='category'>
             <header>
-                Listings for {params.categoryName}
+                <p className='pageHeader'>
+                    Listings for {params.categoryName}
+                </p>
             </header>
-            <div>
-                {listings.length > 0 ? (
-                    listings.map((listing) => {
-                        return (<h1 key={listing.id}>
-                            {listing.data.name}
-                        </h1>);
-                    })
-                )
-                    : <p>No listings</p>}
-            </div>
+            <main>
+                <ul className='categoryListings'>
+                    {listings.length > 0 ? (
+                        listings.map((listing) => {
+                            return (
+                                <ListingItem 
+                                    key={listing.id}
+                                    listing={listing.data}
+                                />
+                            );
+                        })
+                    )
+                        : <p>No listings</p>}
+                </ul>
+            </main>
         </div>
     );
 };
