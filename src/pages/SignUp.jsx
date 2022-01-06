@@ -7,6 +7,7 @@ import { getAuth, createUserWithEmailAndPassword, updateProfile } from 'firebase
 import { setDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase.config';
 
+import GoogleAuth from '../components/GoogleAuth';
 import { ReactComponent as ArrowRightIcon } from '../assets/svg/keyboardArrowRightIcon.svg';
 import visibilityIcon from '../assets/svg/visibilityIcon.svg';
 
@@ -50,13 +51,13 @@ const SignUp = () => {
             delete formDataDb.password;
             formDataDb.timestamp = serverTimestamp();
 
-            console.log(user);
-
             await setDoc(doc(db, 'users', user.uid), formDataDb);
+
+            toast.success('New user created!')
 
             navigation('/');
         } catch (error) {
-            toast.error('Some problems with sign up');
+            toast.error('Some problems with sign up!');
         }
     };
 
@@ -114,6 +115,8 @@ const SignUp = () => {
             <Link to='/sign-in' className='registerLink'>
                 Sign In Instead
             </Link>
+
+            <GoogleAuth />
         </div>
     );
 };

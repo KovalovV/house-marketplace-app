@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 
 import { signInWithEmailAndPassword, getAuth } from 'firebase/auth';
 
+import GoogleAuth from '../components/GoogleAuth';
 import { ReactComponent as ArrowRightIcon } from '../assets/svg/keyboardArrowRightIcon.svg';
 import visibilityIcon from '../assets/svg/visibilityIcon.svg';
 
@@ -41,8 +42,10 @@ const SignIn = () => {
             if(user) {
                 navigation('/');
             }
+
+            toast.success('Success sign in!');
         } catch (error) {
-            toast.error('Some problems with sign in');
+            toast.error('Some problems with sign in!');
         }
     };
 
@@ -95,6 +98,8 @@ const SignIn = () => {
             <Link to='/sign-up' className='registerLink'>
                 Sign Up Instead
             </Link>
+
+            <GoogleAuth />
         </div>
     );
 };

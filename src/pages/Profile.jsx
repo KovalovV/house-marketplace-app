@@ -19,9 +19,9 @@ const Profile = () => {
 
     const [isDisable, setIsDisable] = useState(true);
 
-    useEffect(() => {
-        auth = getAuth();
-    }, [name, email]);
+    // useEffect(() => {
+    //     auth = getAuth();
+    // }, [name, email]);
 
     const navigation = useNavigate();
 
