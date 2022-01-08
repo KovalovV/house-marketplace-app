@@ -764,6 +764,13 @@ button {
   display: flex;
 }
 
+input[type=checkbox], input[type=radio] {display: none;}
+
+input[type=radio]:checked + label{
+  background-color: #00cc66;
+  color: #ffffff;   
+}
+
 .formButton,
 .formInput,
 .formInputAddress,
@@ -789,6 +796,12 @@ button {
 
 .flex {
   display: flex;
+}
+
+@media (max-width: 600px) {
+  .flex {
+    flex-direction: column;
+  } 
 }
 
 .formInput,

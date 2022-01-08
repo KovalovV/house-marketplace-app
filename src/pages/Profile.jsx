@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { getAuth, updateProfile } from 'firebase/auth';
 import { updateDoc, doc } from 'firebase/firestore';
 import { db } from '../firebase.config';
+
 import editIcon from '../assets/svg/editIcon.svg';
+import arrowRightIcon from '../assets/svg/keyboardArrowRightIcon.svg';
+import homeIcon from '../assets/svg/homeIcon.svg';
 
 const Profile = () => {
     let auth = getAuth();
@@ -125,6 +128,13 @@ const Profile = () => {
                         <button type='submit' className='submitEdit'>Submit edit</button>
                     </form>
                 </div>
+                <Link to='/create-listing' className='createListing'>
+                    <img src={homeIcon} alt='home' />
+                    <div>
+                        Sell or rent your house
+                    </div>
+                    <img src={arrowRightIcon} alt='arrow right' />
+                </Link>
             </main>
         </div>
     );
