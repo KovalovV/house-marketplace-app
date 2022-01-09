@@ -1,7 +1,16 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import {
+    getStorage,
+    ref,
+    uploadBytesResumable,
+    getDownloadURL,
+} from 'firebase/storage';
+import { serverTimestamp, addDoc, collection } from 'firebase/firestore';
 import { db } from '../firebase.config';
+import { v4 as uuidv4 } from 'uuid';
+import { toast } from 'react-toastify';
 import Spinner from '../components/Spiner';
 
 const commonRadio = [{
@@ -47,8 +56,8 @@ const furnisheds = [{
 }];
 
 const CreateListing = () => {
-    const [geolocationEnabled, setGeolocationEnabled] = useState(true)
-    const [loading, setLoading] = useState(false)
+    const [geolocationEnabled, setGeolocationEnabled] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         type: 'rent',
         name: '',
@@ -63,7 +72,7 @@ const CreateListing = () => {
         images: {},
         latitude: 0,
         longitude: 0,
-    })
+    });
 
     const {
         type,
@@ -79,10 +88,10 @@ const CreateListing = () => {
         images,
         latitude,
         longitude,
-    } = formData
+    } = formData;
 
     const auth = getAuth();
-    const naviate = useNavigate();
+    const navigate = useNavigate();
     const isMounted = useRef(true);
 
     useEffect(() => {
@@ -96,7 +105,7 @@ const CreateListing = () => {
                         }
                     })
                 } else {
-                    naviate('/');
+                    navigate('/');
                 }
             });
         }
@@ -106,11 +115,113 @@ const CreateListing = () => {
         }
     }, [isMounted]);
 
-    console.log(formData);
-
-    const onSubmitListing = (event) => {
+    const onSubmitListing = async (event) => {
         event.preventDefault();
-    }
+
+        let geolocation = {};
+        let location;
+
+        setLoading(true)
+
+        if (discountedPrice >= regularPrice) {
+            setLoading(false);
+            toast.error('Discounted price needs to be less than regular price!');
+            return;
+        }
+
+        if (images.length > 6) {
+            setLoading(false);
+            toast.error('Max 6 images!');
+            return;
+        }
+
+        if (geolocationEnabled) {
+            const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=${process.env.REACT_APP_GEOCODE_API_KEY}`);
+
+            const result = await response.json();
+
+            geolocation.lat = result.results[0]?.geometry.location.lat ?? 0;
+            geolocation.lng = result.results[0]?.geometry.location.lng ?? 0;
+
+            location =
+                result.status === 'ZERO_RESULTS'
+                    ? undefined
+                    : result.results[0]?.formatted_address;
+
+            if (location === undefined || location.includes('undefined')) {
+                setLoading(false);
+                toast.error('Please enter a correct address');
+                return;
+            }
+        } else {
+            geolocation.lat = latitude;
+            geolocation.lng = longitude;
+        }
+
+        const storeImage = async (image) => {
+            return new Promise((resolve, reject) => {
+                const storage = getStorage();
+                const fileName = `${auth.currentUser.uid}-${uuidv4()}-${image.name}`;
+                const storageRef = ref(storage, 'images/' + fileName);
+
+                const uploadTask = uploadBytesResumable(storageRef, fileName);
+
+                uploadTask.on('state_changed',
+                    (snapshot) => {
+                        // let progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        // switch (snapshot.state) {
+                        //     case 'paused':
+                        //         // console.log('Upload is paused');
+                        //         break;
+                        //     case 'running':
+                        //         // console.log('Upload is running');
+                        //         break;
+                        // }
+                    },
+                    (error) => {
+                        reject(error)
+                    },
+                    () => {
+                        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                            resolve(downloadURL);
+                        });
+                    }
+                );
+            });
+        };
+
+        const imageUrls = await Promise.all(
+            [...images].map((image) => storeImage(image))
+        ).catch(() => {
+            setLoading(false);
+            toast.error('Images not uploaded');
+            return;
+        });
+
+        let formDataCopy = {
+            ...formData,
+            imageUrls,
+            location: address,
+            geolocation: {
+                lat: latitude,
+                lng: longitude,
+            },
+            timestamp: serverTimestamp(),
+        };
+        delete formDataCopy.address;
+        delete formDataCopy.images;
+        delete formDataCopy.latitude;
+        delete formDataCopy.longitude;
+        !formDataCopy.offer && delete formDataCopy.discountedPrice;
+
+        console.log(formDataCopy);
+
+        const docRef = await addDoc(collection(db, 'listing'), formDataCopy);
+        
+        setLoading(false);
+        toast.success('Listing was created successfully');
+        navigate(`/category/${formDataCopy.type}/${docRef.id}`);
+    };
 
     const onMutate = (event) => {
         const fieldObj = event.target;
@@ -135,12 +246,12 @@ const CreateListing = () => {
                     }
                 });
                 break;
-            
+
             case 'bedrooms':
                 setFormData((prevState) => {
                     return {
                         ...prevState,
-                        [fieldName]: fieldValue,
+                        [fieldName]: Number(fieldValue),
                     }
                 });
                 break;
@@ -149,7 +260,7 @@ const CreateListing = () => {
                 setFormData((prevState) => {
                     return {
                         ...prevState,
-                        [fieldName]: fieldValue,
+                        [fieldName]: Number(fieldValue),
                     }
                 });
                 break;
@@ -162,7 +273,7 @@ const CreateListing = () => {
                     }
                 });
                 break;
-                
+
             case 'furnished':
                 setFormData((prevState) => {
                     return {
@@ -181,6 +292,24 @@ const CreateListing = () => {
                 });
                 break;
 
+            case 'latitude':
+                setFormData((prevState) => {
+                    return {
+                        ...prevState,
+                        [fieldName]: Number(fieldValue),
+                    }
+                });
+                break;
+
+            case 'longitude':
+                setFormData((prevState) => {
+                    return {
+                        ...prevState,
+                        [fieldName]: Number(fieldValue),
+                    }
+                });
+                break;
+
             case 'offer':
                 setFormData((prevState) => {
                     return {
@@ -189,21 +318,30 @@ const CreateListing = () => {
                     }
                 });
                 break;
-                
+
             case 'regularPrice':
                 setFormData((prevState) => {
                     return {
                         ...prevState,
-                        [fieldName]: fieldValue,
+                        [fieldName]: Number(fieldValue),
                     }
                 });
                 break;
-                
+
             case 'discountedPrice':
                 setFormData((prevState) => {
                     return {
                         ...prevState,
-                        [fieldName]: fieldValue,
+                        [fieldName]: Number(fieldValue),
+                    }
+                });
+                break;
+
+            case 'images':
+                setFormData((prevState) => {
+                    return {
+                        ...prevState,
+                        [fieldName]: fieldObj.files,
                     }
                 });
                 break;
@@ -226,14 +364,14 @@ const CreateListing = () => {
                     <div className='formButtons'>
                         <input
                             type='radio'
-                            id='sale'
+                            id='sell'
                             name='type'
-                            value='sale'
+                            value='sell'
                             onChange={onMutate}
                         />
                         <label
-                            className={type === 'sale' ? 'formButtonActive' : 'formButton'}
-                            htmlFor='sale'
+                            className={type === 'sell' ? 'formButtonActive' : 'formButton'}
+                            htmlFor='sell'
                         >
                             Sell
                         </label>
@@ -443,6 +581,7 @@ const CreateListing = () => {
                         className='formInputFile'
                         type='file'
                         id='images'
+                        name='images'
                         onChange={onMutate}
                         max='6'
                         accept='.jpg,.png,.jpeg'
