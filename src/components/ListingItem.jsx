@@ -52,7 +52,7 @@ const ListingItem = ({ listing, id, onEdit, onDelete }) => {
         <DeleteIcon
           className='removeIcon'
           fill='rgb(231, 76,60)'
-          onClick={() => onDelete(listing.id, listing.name)}
+          onClick={() => onDelete(id, listing.name)}
         />
       )}
 
