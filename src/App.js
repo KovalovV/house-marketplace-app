@@ -10,6 +10,7 @@ import Offers from './pages/Offers';
 import Category from './pages/Category';
 import Listing from './pages/Listing';
 import Profile from './pages/Profile';
+import Contact from './pages/Contact';
 import CreateListing from './pages/CreateListing';
 import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp';
@@ -27,6 +28,7 @@ const App = () => {
         <Route path='/offers' element={<Offers />} />
         <Route path='/category/:categoryName' element={<Category />} />
         <Route path='/category/:categoryName/:listingId' element={<Listing />} />
+        <Route path='/contact/:landlordId' element={<Contact />} />
         <Route path='/profile' element={<PrivateRoute />}>
           <Route path='/profile' element={<Profile />} />
         </Route>

@@ -42,7 +42,6 @@ const Offers = () => {
                 const querySetDoc = await getDocs(querySet);
 
                 querySetDoc.forEach((doc) => {
-                    console.log(doc.data());
                     return listingsArray.push({
                         id: doc.id,
                         data: doc.data(),
@@ -79,6 +78,7 @@ const Offers = () => {
                                 <ListingItem 
                                     key={listing.id}
                                     listing={listing.data}
+                                    id={listing.id}
                                 />
                             );
                         })

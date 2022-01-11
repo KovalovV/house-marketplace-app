@@ -101,7 +101,7 @@ const CreateListing = () => {
                     setFormData((prevState) => {
                         return {
                             ...prevState,
-                            useRef: user.uid,
+                            userRef: user.uid,
                         }
                     })
                 } else {
@@ -161,7 +161,7 @@ const CreateListing = () => {
         const storeImage = async (image) => {
             return new Promise((resolve, reject) => {
                 const storage = getStorage();
-                const fileName = `${auth.currentUser.uid}-${uuidv4()}-${image.name}`;
+                const fileName = `${auth.currentUser.uid}-${uuidv4()}-${image.name}`; // проблеми із збереженням фото
                 const storageRef = ref(storage, 'images/' + fileName);
 
                 const uploadTask = uploadBytesResumable(storageRef, fileName);

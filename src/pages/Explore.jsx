@@ -2,6 +2,8 @@ import { Link } from 'react-router-dom';
 import rentCategoryImg from '../assets/jpg/rentCategoryImage.jpg'
 import sellCategoryImg from '../assets/jpg/sellCategoryImage.jpg'
 
+import Slider from '../components/Slider';
+
 const Explore = () => {
     return (
         <div className='explore'>
@@ -11,6 +13,7 @@ const Explore = () => {
                 </p>
             </header>
             <main>
+                <Slider />
                 <p className='exploreCategoryHeading'>
                     Category for rent
                 </p>

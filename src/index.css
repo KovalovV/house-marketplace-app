@@ -26,6 +26,10 @@ button {
   border: none;
 }
 
+main {
+  margin-bottom: 85px;
+}
+
 .input,
 .passwordInput,
 .emailInput,
@@ -68,11 +72,20 @@ button {
   color: #ffffff;
   font-weight: 600;
   font-size: 1.25rem;
-  width: 80%;
+  width: 50%;
   margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+@media (max-width:600px) {
+  .contactButton {
+    width: 80%;
+    font-size:15px;
+    text-align: center;
+    padding: 0.85rem 1rem;
+  }
 }
 
 .removeIcon {
@@ -162,6 +175,7 @@ button {
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-top: 85px;
 }
 
 .navbarNav {
@@ -491,6 +505,25 @@ button {
   font-size: 0.7rem;
 }
 
+@media (max-width: 400px) {
+  .exploreCategories {
+    flex-direction: column;
+  }
+
+  .exploreCategories a {
+    width: 100%;
+  }
+
+  .categoryListing {
+    flex-direction: column;
+    margin-bottom: 1rem;
+  }
+
+  .categoryListingImg, .categoryListingDetails {
+    width: 90%;
+  }
+}
+
 .loadMore {
   cursor: pointer;
   width: 8rem;
@@ -735,7 +768,7 @@ button {
 .createListing {
   background-color: #ffffff;
   border-radius: 1rem;
-  padding: 0.25rem 1rem;
+  padding: 1rem;
   box-shadow: rgba(0, 0, 0, 0.2);
   margin-top: 2rem;
   font-weight: 600;

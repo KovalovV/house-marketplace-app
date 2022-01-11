@@ -10,7 +10,6 @@ import {
     where,
     orderBy,
     limit,
-    startAfter
 } from 'firebase/firestore';
 import { db } from '../firebase.config';
 
@@ -42,7 +41,6 @@ const Category = () => {
                 const querySetDoc = await getDocs(querySet);
 
                 querySetDoc.forEach((doc) => {
-                    console.log(doc.data());
                     return listingsArray.push({
                         id: doc.id,
                         data: doc.data(),
@@ -79,6 +77,7 @@ const Category = () => {
                                 <ListingItem 
                                     key={listing.id}
                                     listing={listing.data}
+                                    id={listing.id}
                                 />
                             );
                         })
