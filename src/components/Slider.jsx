@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
 
 import {
     collection,
@@ -38,10 +37,6 @@ const Slider = () => {
             const listingData = await getDocs(listingQuery);
 
             listingData.forEach((listing) => {
-                console.log({
-                    id: listing.id,
-                    data: listing.data(),
-                });
                 return listings.push({
                     id: listing.id,
                     data: listing.data(),

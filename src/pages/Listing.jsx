@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { getAuth } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { Link, useParams, useNavigate } from 'react-router-dom';
@@ -20,13 +20,11 @@ const Listing = () => {
     const [loading, setLoading] = useState(true);
     const [listing, setListing] = useState({});
 
-    const isMounted = useRef(true);
     const auth = getAuth();
     const navigate = useNavigate();
     const params = useParams();
 
     useEffect(() => {
-
         const fetchSingleListing = async () => {
             const listingRef = doc(db, 'listing', params.listingId);
             const listingSnap = await getDoc(listingRef);
@@ -53,7 +51,7 @@ const Listing = () => {
                 slidesPerView={1}
                 pagination={{ clickable: true }}
             >
-                {listing.imageUrls.map((url, index) => (
+                {listing.imageUrls.map((listingItem, index) => (
                     <SwiperSlide key={index}>
                         <div
                             className='swiperSlideDiv'
@@ -62,7 +60,6 @@ const Listing = () => {
                                 backgroundSize: 'cover',
                             }}
                         >
-
                         </div>
                     </SwiperSlide>))}
             </Swiper>

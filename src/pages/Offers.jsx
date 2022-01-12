@@ -21,6 +21,7 @@ import Spinner from '../components/Spiner';
 
 const Offers = () => {
     const [listings, setListings] = useState([]);
+    const [lastListing, setLastListing] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const params = useParams();
@@ -36,10 +37,13 @@ const Offers = () => {
                     listingsRef,
                     where('offer', '==', true),
                     orderBy('timestamp', 'desc'),
-                    limit(10)
+                    limit(2)
                 );
 
                 const querySetDoc = await getDocs(querySet);
+
+                const lastListingFetch = querySetDoc.docs[querySetDoc.docs.length - 1];
+                setLastListing(lastListingFetch);
 
                 querySetDoc.forEach((doc) => {
                     return listingsArray.push({
@@ -58,6 +62,38 @@ const Offers = () => {
         fetchListing();
 
     }, [params.categoryName]);
+
+    const onFetchMoreListing = async () => {
+        try {
+            const listingsRef = collection(db, 'listing');
+
+            const querySet = query(
+                listingsRef,
+                where('offer', '==', true),
+                orderBy('timestamp', 'desc'),
+                startAfter(lastListing),
+                limit(7)
+            );
+
+            const querySetDoc = await getDocs(querySet);
+
+            const lastListingFetch = querySetDoc.docs[querySetDoc.docs.length - 1];
+            setLastListing(lastListingFetch);
+
+            const listingsArray = [];
+            querySetDoc.forEach((doc) => {
+                return listingsArray.push({
+                    id: doc.id,
+                    data: doc.data(),
+                });
+            });
+
+            setListings((prevState) => [...prevState, ...listingsArray]);
+            setLoading(false);
+        } catch (error) {
+            toast.error('Something went wrong with fetching listings!')
+        }
+    };
 
     if (loading) {
         return <Spinner />;
@@ -86,6 +122,14 @@ const Offers = () => {
                         : <p>There are no current offers</p>}
                 </ul>
             </main>
+            {listings?.length > 0 && (
+                <p
+                    className='loadMore'
+                    onClick={onFetchMoreListing}
+                >
+                    Load More
+                </p>
+            )}
         </div>
     );
 };

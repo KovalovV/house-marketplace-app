@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import {
     getStorage,
@@ -7,7 +7,7 @@ import {
     uploadBytesResumable,
     getDownloadURL,
 } from 'firebase/storage';
-import { serverTimestamp, addDoc, collection } from 'firebase/firestore';
+import { serverTimestamp, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase.config';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'react-toastify';
@@ -55,10 +55,11 @@ const furnisheds = [{
     ...commonRadio[1]
 }];
 
-const CreateListing = () => {
+const EditListing = () => {
     // eslint-disable-next-line
     const [geolocationEnabled, setGeolocationEnabled] = useState(false);
-    const [loading, setLoading] = useState(false);
+    const [listing, setListing] = useState(null);
+    const [loading, setLoading] = useState(true);
     const [formData, setFormData] = useState({
         type: 'rent',
         name: '',
@@ -93,7 +94,41 @@ const CreateListing = () => {
 
     const auth = getAuth();
     const navigate = useNavigate();
+    const params = useParams();
     const isMounted = useRef(true);
+
+    useEffect(() => {
+        if (listing && listing.userRef !== auth.currentUser.uid) {
+            toast.error('You can not edit that listing')
+            navigate('/')
+        }
+    });
+
+    useEffect(() => {
+        setLoading(true);
+        const fetchEditListing = async () => {
+            const listingRef = doc(db, 'listing', params.listingId);
+            const listingSnap = await getDoc(listingRef);
+
+            if (listingSnap.exists()) {
+                const listingData = listingSnap.data();
+                setListing(listingData);
+                setFormData({
+                    ...listingData,
+                    address: listingData?.location,
+                    latitude: listingData?.geolocation.lat,
+                    longitude: listingData?.geolocation.lng,
+                });
+                setLoading(false);
+            } else {
+                navigate('/');
+                toast.error('Listing does not exist');
+            }
+
+        };
+
+        fetchEditListing();
+    }, [params.listingId, navigate]);
 
     useEffect(() => {
         if (isMounted) {
@@ -168,8 +203,8 @@ const CreateListing = () => {
                 const uploadTask = uploadBytesResumable(storageRef, image);
 
                 uploadTask.on('state_changed',
-                    (snapshot) => {},
-                    (error) => {reject(error)},
+                    (snapshot) => { },
+                    (error) => { reject(error) },
                     () => {
                         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
                             resolve(downloadURL);
@@ -203,10 +238,11 @@ const CreateListing = () => {
         delete formDataCopy.longitude;
         !formDataCopy.offer && delete formDataCopy.discountedPrice;
 
-        const docRef = await addDoc(collection(db, 'listing'), formDataCopy);
-        
+        const docRef = doc(db, 'listing', params.listingId);
+        await updateDoc(docRef, formDataCopy);
+
         setLoading(false);
-        toast.success('Listing was created successfully');
+        toast.success('Listing was updated successfully');
         navigate(`/category/${formDataCopy.type}/${docRef.id}`);
     };
 
@@ -332,7 +368,7 @@ const CreateListing = () => {
                     }
                 });
                 break;
-            
+
             default:
                 setFormData((prevState) => {
                     return {
@@ -349,7 +385,7 @@ const CreateListing = () => {
     return (
         <div className='profile'>
             <header>
-                <p className='pageHeader'>Create a Listing</p>
+                <p className='pageHeader'>Edit a Listing</p>
             </header>
 
             <main>
@@ -583,7 +619,7 @@ const CreateListing = () => {
                         required
                     />
                     <button type='submit' className='primaryButton createListingButton'>
-                        Create Listing
+                        Update Listing
                     </button>
                 </form>
             </main>
@@ -591,4 +627,4 @@ const CreateListing = () => {
     );
 };
 
-export default CreateListing;
+export default EditListing;

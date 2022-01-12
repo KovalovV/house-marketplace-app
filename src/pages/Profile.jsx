@@ -15,6 +15,7 @@ import {
 import { db } from '../firebase.config';
 
 import ListingItem from '../components/ListingItem';
+import Spiner from '../components/Spiner';
 
 import editIcon from '../assets/svg/editIcon.svg';
 import arrowRightIcon from '../assets/svg/keyboardArrowRightIcon.svg';
@@ -58,7 +59,7 @@ const Profile = () => {
         };
 
         fetchProfileListings();
-    }, []);
+    }, [auth.currentUser.uid]);
 
     const onClick = () => {
         try {
@@ -111,6 +112,12 @@ const Profile = () => {
             setProfileListing(updateProfileListing);
         }
     };
+
+    const onEdit = (listingId) => {navigation(`/edit-listing/${listingId}`)};
+
+    if (loading) {
+        return <Spiner />;
+    }
 
     return (
         <div className='profile'>
@@ -173,7 +180,7 @@ const Profile = () => {
 
                 {!loading && profileListing?.length > 0 && (
                     <div>
-                        <p>
+                        <p className='pageHeader'>
                             My listings
                         </p>
                         <div>
@@ -183,6 +190,7 @@ const Profile = () => {
                                     listing={data}
                                     id={id}
                                     onDelete={(listingId) => onDelete(listingId)}
+                                    onEdit={(listingId) => onEdit(listingId)}
                                 />
                             ))}
                         </div>

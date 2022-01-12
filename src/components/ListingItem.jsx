@@ -51,8 +51,16 @@ const ListingItem = ({ listing, id, onEdit, onDelete }) => {
       {onDelete && (
         <DeleteIcon
           className='removeIcon'
-          fill='rgb(231, 76,60)'
+          fill='rgb(231, 76, 60)'
           onClick={() => onDelete(id, listing.name)}
+        />
+      )}
+
+      {onEdit && (
+        <EditIcon
+          className='editIcon'
+          fill='rgb(255, 255, 255)'
+          onClick={() => onEdit(id, listing.name)}
         />
       )}
 

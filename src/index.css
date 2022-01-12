@@ -91,16 +91,15 @@ main {
 .removeIcon, .editIcon {
   cursor: pointer;
   position: absolute;
+  top: 10px;
 }
 
 .removeIcon {
-  top: -3%;
-  right: 5%;
+  right: 40px;
 }
 
 .editIcon {
-  top: -3.4%;
-  right: 20px;
+  right: 10px;
 }
 
 @media (max-width:400px) {
@@ -110,7 +109,7 @@ main {
   }
   
   .editIcon {
-    top: -3.4%;
+    top: 100%;
     right: 20px;
   }
 }
@@ -529,7 +528,7 @@ main {
 
   .categoryListing {
     flex-direction: column;
-    margin-bottom: 1rem;
+    margin-bottom: 2rem;
   }
 
   .categoryListingImg, .categoryListingDetails {
