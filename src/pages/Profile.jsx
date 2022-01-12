@@ -1,32 +1,64 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { useNavigate, Link } from 'react-router-dom';
 import { getAuth, updateProfile } from 'firebase/auth';
-import { updateDoc, doc } from 'firebase/firestore';
+import { 
+    updateDoc,
+    doc,
+    getDocs,
+    collection,
+    query,
+    where,
+    orderBy,
+    deleteDoc,
+ } from 'firebase/firestore';
 import { db } from '../firebase.config';
+
+import ListingItem from '../components/ListingItem';
 
 import editIcon from '../assets/svg/editIcon.svg';
 import arrowRightIcon from '../assets/svg/keyboardArrowRightIcon.svg';
 import homeIcon from '../assets/svg/homeIcon.svg';
 
 const Profile = () => {
-    let auth = getAuth();
-    // const { email, displayName } = auth.currentUser || {};
-
+    const auth = getAuth();
+    const [loading, setLoading] = useState(true);
+    const [isDisable, setIsDisable] = useState(true);
+    const [profileListing, setProfileListing] = useState(null);
     const [formData, setformData] = useState({
         email: auth.currentUser.email,
         name: auth.currentUser.displayName,
     });
-
+    
     const { email, name } = formData;
 
-    const [isDisable, setIsDisable] = useState(true);
-
-    // useEffect(() => {
-    //     auth = getAuth();
-    // }, [name, email]);
-
     const navigation = useNavigate();
+
+    useEffect(() => {
+        const fetchProfileListings = async () => {
+            const profileListingRef = collection(db, 'listing');
+            const profileListingQuery = query(
+                profileListingRef,
+                where('userRef', '==', auth.currentUser.uid),
+                orderBy('timestamp', 'desc')
+            );
+            const profileListingData = await getDocs(profileListingQuery);
+
+            const profileListingArray = [];
+
+            profileListingData.forEach((listing) => {
+                return profileListingArray.push({
+                    id: listing.id,
+                    data: listing.data()
+                });
+            });
+
+            setProfileListing(profileListingArray);
+            setLoading(false);
+        };
+
+        fetchProfileListings();
+    }, []);
 
     const onClick = () => {
         try {
@@ -54,13 +86,6 @@ const Profile = () => {
         } catch (error) {
             toast.error('Profile info not updated!');
         }
-
-        // setformData((prevState) => {
-        //     return {
-        //         ...prevState,
-        //         ...formData,
-        //     }
-        // })
     };
 
     const onChangeEdit = (event) => {
@@ -75,6 +100,16 @@ const Profile = () => {
 
     const onClickAllowEdit = () => {
         setIsDisable((prevState) => !prevState);
+    };
+
+    const onDelete = async (listingId) => {
+        if(window.confirm('Are you sure you want to delete this listing?')) {
+            const delListingRef = doc(db, 'listing', listingId);
+            await deleteDoc(delListingRef);
+
+            const updateProfileListing = profileListing.filter(({ id }) => id !== listingId);
+            setProfileListing(updateProfileListing);
+        }
     };
 
     return (
@@ -135,6 +170,24 @@ const Profile = () => {
                     </div>
                     <img src={arrowRightIcon} alt='arrow right' />
                 </Link>
+
+                {!loading && profileListing?.length > 0 && (
+                    <div>
+                        <p>
+                            My listings
+                        </p>
+                        <div>
+                            {profileListing.map(({ data, id }) => (
+                                <ListingItem 
+                                    key={id}
+                                    listing={data}
+                                    id={id}
+                                    onDelete={(listingId) => onDelete(listingId)}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                )}
             </main>
         </div>
     );

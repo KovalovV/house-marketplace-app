@@ -27,8 +27,6 @@ const Category = () => {
     useEffect(() => {
         const fetchListing = async () => {
             try {
-                const listingsArray = [];
-
                 const listingsRef = collection(db, 'listing');
 
                 const querySet = query(
@@ -40,6 +38,7 @@ const Category = () => {
 
                 const querySetDoc = await getDocs(querySet);
 
+                const listingsArray = [];
                 querySetDoc.forEach((doc) => {
                     return listingsArray.push({
                         id: doc.id,

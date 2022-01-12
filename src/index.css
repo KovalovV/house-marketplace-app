@@ -88,18 +88,31 @@ main {
   }
 }
 
-.removeIcon {
+.removeIcon, .editIcon {
   cursor: pointer;
   position: absolute;
+}
+
+.removeIcon {
   top: -3%;
-  right: -2%;
+  right: 5%;
 }
 
 .editIcon {
-  cursor: pointer;
-  position: absolute;
   top: -3.4%;
   right: 20px;
+}
+
+@media (max-width:400px) {
+  .removeIcon {
+    top: 100%;
+    right: 0%;
+  }
+  
+  .editIcon {
+    top: -3.4%;
+    right: 20px;
+  }
 }
 
 .pageContainer,
